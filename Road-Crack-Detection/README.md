@@ -1,96 +1,229 @@
-# Crack detection using OpenCV
+# Road Crack Detection Using OpenCV
 
-### Abstract
-It has been seen that millions of dollars are being invested on highway/subway tunnel maintainance and restoration all over the world. This cost can be minimized if the detection of cracks will be found as earlier as possible. As the reparation process depends on the type of cracks, so we need to take actions for next steps how it would be repaired. It would be a very good decision to repair the cracks as earliar we find it. Initially we need to capture very transperant images of the roads/concrete infrastuctures. Cause detections will depend on that images. So any device that will be used to scan or capture images of the roads/concrete infrastuctures, that must be configured for picturing high resolution images. On those images, various image processing techniques are applied to extract crack information. Depending on these information, the images could be classified using some decision making algorithm. This procedure can be implemented on images acquired by any objects or vehicles carrying image sensing terminal, laser distance sensor, image storage and processing servers, central control system and speed sensor. The accuracy depends on the images quality and accurate capture.
+## Abstract
 
-### Introduction
-Whenever we travel what we need at first is road safety. So if we can confirm that conditions of our highway is okay, then accidents will be decreased automatically. Since the highways are built, it can be seen the cracks or holes in the asphalt/concrete surface. As soon as we repair our cracks, our journey will be safe for sure. Most of cases the accidents happen due to the poor condition of the road.
+Road and concrete infrastructure require regular inspection and maintenance. Detecting cracks early can help reduce maintenance costs and improve road safety. Manual inspection of long highways and other large structures is time-consuming, so image-processing techniques can help identify possible cracks from captured images.
 
-In very modern countries, they have thousands of kilometers highways. It's very difficult to inspect these roads by manpower. So an efficient automatic detection of the road condition can be developed for making them safe.
+This project demonstrates a traditional computer-vision pipeline for highlighting road cracks. It applies grayscale conversion and blurring, logarithmic intensity transformation, bilateral filtering, Canny edge detection, morphological closing, and ORB feature detection.
 
-These cracks of the highways can be classified into some types. Depending on those cracks, authority must take actions how those would have to repair. Initially it may need to detect the location of the cracks. To perform that, a visual inspection technique is needed to capture images of the roads and then to be analyzed.
+The results depend strongly on image quality, lighting, shadows, surface texture, and camera focus. The current implementation is a prototype for crack visualization; further testing is required before using it for safety-critical decisions.
 
-So our ultimate goal is to develop a system that can be able to detect these cracks on the highways automatically.
+## Introduction
 
-### Methodology
-Here the crack detection methodology can be classified into some following steps below:
-1. Image capture
-2. Image processing
-3. Image Segmention
-4. Feature extraction
+Road cracks and other surface defects can develop because of traffic loads, weather, ageing, and other environmental factors. If they are not identified and repaired in time, they may lead to more extensive deterioration and increase maintenance costs.
 
-#### Image capture
-Any device can be installed on a vehicle zenith point or in a pole that is capable of capturing high resoluted imgaes of higways from any angle but focus should be perfect. If needed then the original images could be resized. Here are some examples of images on which we are going to detect cracks.
+Inspecting thousands of kilometres of roads manually can be challenging. An image-based system can help inspectors review road surfaces by processing photographs and highlighting regions that may contain cracks.
 
-<img src="Input-Set/Cracked_01.jpg" width="400" height="250"> <img src="Input-Set/Cracked_07.jpg" width="400" height="250">
+The goal of this project is to demonstrate an automated image-processing workflow for detecting crack-like structures in road images.
 
-#### Image processing techniques
-All the steps in the processing section are being explained below. 
+## Methodology
 
-##### Gray scaling and averaging
-Firstly, the images is transformed in a new one in grayscale and blur. These make the images easier to visualize the processed images in next steps. 
+The image-processing workflow consists of the following stages:
 
-<img src="Processed-Set/blur-1.jpg" width="400" height="250"> <img src="Processed-Set/blur-7.jpg" width="400" height="250">
-<pre>              Blurred Image                                           Blurred Image</pre>
+1. Image capture and input.
+2. Grayscale conversion and blurring.
+3. Logarithmic intensity transformation.
+4. Bilateral filtering to smooth the image while preserving edges.
+5. Canny edge detection.
+6. Morphological closing to join small gaps in detected edges.
+7. ORB feature detection and visualization.
 
-##### Logarithmic transformation
-Logarithmic transformation is used to replace all the pixels values of an image with its logarithmic values. This transformation is used for image enhancement as it expands dark pixels of the image as compared to higher pixel values. So if we apply this method in an image having higher pixel values then it will enhance the image more and actual information of the image will be lost. Now after applying the log transformation in to our sample blurred images, they look like below.
+### 1. Image Capture
 
-<img src="Processed-Set/img_log-1.jpg" width="400" height="250"> <img src="Processed-Set/img_log-7.jpg" width="400" height="250">
-<pre>           Log Transformed Image                                   Log Transformed Image</pre>
+The system takes road-surface photographs as input. Images that are sharp, well-lit, and captured at a suitable angle generally produce more useful results.
 
-##### Image smoothing: bilateral filter
-The bilateral filter also uses a Gaussian filter in the space domain, but it also uses one more (multiplicative) Gaussian filter component which is a function of pixel intensity differences. This method preserves edges, since for pixels lying near edges, neighboring pixels placed on the other side of the edge, and therefore exhibiting large intensity variations when compared to the central pixel, will not be included for blurring. So the sample logarithmic transformed images become as following after applying the bilateral filtering.
+The input images used in this project are stored in `Input-Set/`.
 
-<img src="Processed-Set/bilateral-1.jpg" width="400" height="250"> <img src="Processed-Set/bilateral-7.jpg" width="400" height="250">
-<pre>           Bilateral Filtered Image                           Bilateral Filtered Image</pre>
+<img src="Input-Set/Cracked_01.jpg" width="400" alt="Input road image with cracks">
+<img src="Input-Set/Cracked_07.jpg" width="400" alt="Another input road image with cracks">
 
-#### Image Segmention Techniques
-##### Canny edge detection
-Canny edge detection is a technique to extract useful structural information from different vision objects and dramatically reduce the amount of data to be processed. It uses a multi-stage algorithm to detect a wide range of edges in images. 
-Canny algorithm consists of three main steps:
+### 2. Image Processing Techniques
 
-1. Find the intensity gradient of the image: In this step the scale of the gradient vector is calculated for each pixel.
-2. Non-maximum suppression: The aim of this step is to “thin” the edge to obtain a one-pixel width edge.
-3. Threshold hysteresis: Finally, a two-step threshold hysteresis is applied in order to decrease the fake edges.
+#### Grayscale Conversion and Blurring
 
-Now we apply canny algorithm to detect the crack edges in our bilateral filtered as following.
+The input image is converted to grayscale so that processing can focus on intensity differences rather than colour. Blurring reduces some high-frequency noise and can make later edge detection more stable.
 
-<img src="Processed-Set/edges-1.jpg" width="400" height="250"> <img src="Processed-Set/edges-7.jpg" width="400" height="250">
-<pre>           Canny Edges Image                                   Canny Edges Image</pre>
+<img src="Processed-Set/blur-1.jpg" width="400" alt="Grayscale and blurred road image">
+<img src="Processed-Set/blur-7.jpg" width="400" alt="Second grayscale and blurred road image">
 
-##### Morphological closing operator
-Morphological transformations are some simple operations based on the image shape. It is normally performed on binary images. It needs two inputs, one is our original image, second one is called structuring element or kernel which decides the nature of operation. 
+#### Logarithmic Transformation
 
-There are many different types of morphological filtering, but after analyzing the results, the best filter for this detection is the closing filter. Closing filter helps to fill minor gaps in the image making the main crack continuous and more detailed. It is useful in closing small holes inside the foreground objects, or small black points on the object. Closing filter is defined as a dilation followed by an erosion.
+Logarithmic transformation changes pixel intensities to expand darker intensity values relative to brighter ones. This can make faint details more visible, although an unsuitable transformation may also hide useful information or amplify noise.
 
-Here we go to apply the morphological closing operator onto our canny edges detected images.
+<img src="Processed-Set/img_log-1.jpg" width="400" alt="Logarithmically transformed image">
+<img src="Processed-Set/img_log-7.jpg" width="400" alt="Second logarithmically transformed image">
 
-<img src="Processed-Set/closing-1.jpg" width="400" height="250"> <img src="Processed-Set/closing-7.jpg" width="400" height="250">
-<pre>           Morphological Closing Image                          Morphological Closing Image</pre>
+#### Bilateral Filtering
 
-#### Feature extraction
-There are various types of algorithm like (SIFT, SURF, ORB) that could be used in feature detection/extraction. SIFT and SURF are patented so not free for commercial use, while ORB is free. SIFT and SURF detect more features than ORB, but ORB is faster. ORB stands for Oriented FAST and Rotated BRIEF. It combines features of FAST and BRIEF for feature extraction and description. It has very fast computational speed, efficient memory usage, and high matching accuracy. ORB can be used instead of SIFT and SURF for feature extraction. 
+A bilateral filter smooths an image while taking both spatial distance and intensity differences into account. Unlike a simple blur, it can preserve many strong edges while reducing noise.
 
-So after applying this ORB method into our morphological closing images we get the result as following.
+<img src="Processed-Set/bilateral-1.jpg" width="400" alt="Bilateral-filtered road image">
+<img src="Processed-Set/bilateral-7.jpg" width="400" alt="Second bilateral-filtered road image">
 
-<img src="Output-Set/CrackDetected-1.jpg" width="400" height="250"> <img src="Output-Set/CrackDetected-7.jpg" width="400" height="250">
-<pre>           Feature Detected Image                              Feature Detected Image</pre>
+### 3. Image Segmentation and Edge Detection
 
-### Result and discussion
-Here we tried with around twenty images of both crack and non-crack to test. Without some cases, the cracks become very visible accurately in our output image. So we can say that 80-90% accuracy can be possible if the images are very clear or transparent. From our final output images we can classify them into several crack types and some classification techniques need to be applied for that.
+#### Canny Edge Detection
 
-### References
-1. M Ann, P Johnson, Best Practices Handbook on asphalt pavement maintenance.Minnesota Technology Transfer (T2) Center / LTAP Program (2000). http://www.cee.mtu.edu/~balkire/CE5403/AsphaltPaveMaint.pdf.
+The Canny algorithm detects strong intensity changes that may correspond to crack boundaries or other edges. Its main stages are gradient calculation, non-maximum suppression, and double-threshold hysteresis.
 
-2. TD Donald Walker, Pavement Surface Evaluation and Rating (PASER) Manuals (Wisconsin Transportation Information Center, Wisconsin, 2002). http://www.apa-mi.org/docs/Asphalt-PASERManual.pdf.
+Canny detects edges, so not every detected edge is necessarily a crack. Shadows, road markings, and surface texture can also produce responses.
 
-3. RK Kay, Pavement Surface Condition - Rating Manual. Northwest Technologies Transfer Center. Northwest Technologies Transfer Center. Washington State Department of Transportation, (Washington, 1992).
+<img src="Processed-Set/edges-1.jpg" width="400" alt="Canny edges in a road image">
+<img src="Processed-Set/edges-7.jpg" width="400" alt="Canny edges in another road image">
 
-4. L Li, L Sun, G Ning, S Tan, Automatic pavement crack recognition based on Bp neural network. PROMET-Traffic Transp. 26(1), 11–22 (2014).
+#### Morphological Closing
 
-5. NHTSA, National Motor Vehicle Crash Causation Survey Report to Congress, (2008). http://www-nrd.nhtsa.dot.gov/Pubs/811059.PDF, Accessed Jan 2017.
+Morphological closing applies dilation followed by erosion using a structuring element. It can connect nearby edge fragments and fill small gaps in the detected structures.
 
-6. JM Palomares, J González, E Ros, in AERFAI 2005. Detección de bordes en imágenes con sombras mediante LIP–Canny (Simposio de Reconocimiento de Formas y Análisis de Imágenes, AERFAI’2005, At Granada, 2005).
+The effect depends on the structuring element and its size. Closing may also join unrelated edges if the parameters are not appropriate.
 
+<img src="Processed-Set/closing-1.jpg" width="400" alt="Image after morphological closing">
+<img src="Processed-Set/closing-7.jpg" width="400" alt="Second image after morphological closing">
+
+### 4. Feature Detection Using ORB
+
+ORB stands for **Oriented FAST and Rotated BRIEF**. It detects keypoints and computes binary descriptors that can be used to describe local image features efficiently.
+
+In this project, ORB is applied to processed images to visualize detected features.
+
+ORB feature detection is not, by itself, a crack classifier. The highlighted keypoints may include features unrelated to cracks, so additional rules or a trained classification or segmentation model would be needed to classify crack types reliably.
+
+<img src="Output-Set/CrackDetected-1.jpg" width="400" alt="Output image with detected ORB features">
+<img src="Output-Set/CrackDetected-7.jpg" width="400" alt="Second output image with detected ORB features">
+
+## Results and Discussion
+
+The prototype was tried on approximately twenty images containing both cracked and non-cracked road surfaces. In several examples, the processing pipeline made crack-like edges more visible.
+
+However, the results can be affected by poor lighting, shadows, surface patterns, image blur, and other edges that resemble cracks.
+
+The original visual assessment suggested that results could be around 80–90% in favourable conditions. This should be treated as an informal estimate, not a measured model accuracy. A larger labelled test set and a defined evaluation procedure are needed to establish a reliable performance figure.
+
+## Conclusion
+
+This project demonstrates how conventional OpenCV techniques can be combined to highlight possible road cracks in images. Grayscale conversion, logarithmic transformation, bilateral filtering, Canny edge detection, morphological closing, and ORB feature detection each contribute to image preparation, edge extraction, or feature visualization.
+
+The resulting images can support visual inspection and serve as a starting point for a more comprehensive road-condition monitoring system.
+
+The current approach has limitations. It may respond to shadows, road markings, and surface texture, and ORB keypoints do not directly identify or classify cracks.
+
+Future work should test the system on a larger and more varied labelled dataset, tune the image-processing parameters, measure performance using suitable metrics such as precision, recall, and F1-score, and explore crack segmentation or classification models. Reliable quantitative evaluation would be required before deploying such a system in real-world road maintenance or safety-critical applications.
+
+## How to Run
+
+This project can be run locally on Windows, macOS, or Linux. The `CrackDetection.py` script opens a file-selection window so you can choose an image from your computer. It processes the selected image and saves the result in the `Output-Set/` directory.
+
+### Prerequisites
+
+- Python 3
+- Git
+- Tkinter, generally included with standard Python installations on Windows
+
+### 1. Clone the Repository
+
+Open PowerShell or a terminal and run:
+
+```powershell
+git clone https://github.com/Pragyangarg25/Road-Crack-Detection.git
+cd Road-Crack-Detection
+```
+
+Run the following command to check whether `CrackDetection.py` is present:
+
+```powershell
+dir
+```
+
+If the file is inside another folder named `Road-Crack-Detection`, enter that folder:
+
+```powershell
+cd Road-Crack-Detection
+```
+
+Run the remaining commands from the directory containing `CrackDetection.py`.
+
+### 2. Create a Virtual Environment
+
+For Windows PowerShell:
+
+```powershell
+python -m venv .venv
+.venv\Scripts\Activate.ps1
+```
+
+For macOS or Linux:
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+```
+
+If PowerShell blocks virtual environment activation, you can run the program using the virtual environment's Python executable directly.
+
+### 3. Install Dependencies
+
+With the virtual environment activated, run:
+
+```powershell
+python -m pip install --upgrade pip
+python -m pip install numpy opencv-python matplotlib
+```
+
+The program uses Python's `tkinter.filedialog` to select images. Tkinter is generally included with standard Windows Python installations.
+
+**Note:** Do not import `google.colab` when running locally. That library is intended for Google Colab notebooks, whereas this project uses Tkinter for local image selection.
+
+### 4. Run the Program
+
+Execute:
+
+```powershell
+python CrackDetection.py
+```
+
+A file-selection window will open.
+
+1. Select an image from your computer.
+2. Click Open.
+3. Allow the program to process the image.
+4. View the original and processed images displayed by Matplotlib.
+
+Supported image formats include JPG, JPEG, PNG, BMP, TIF, and TIFF, subject to OpenCV support.
+
+### 5. View the Output
+
+The program saves the generated output in the `Output-Set/` directory. The directory is created automatically if it does not already exist.
+
+For example:
+
+```text
+Output-Set/
+└── CrackDetected_yourimage.jpg
+```
+
+The output filename is generated from the selected input image's name.
+
+### Troubleshooting
+
+- **`ModuleNotFoundError`:** Activate `.venv` and install the required dependencies.
+- **`No module named 'google.colab'`:** Remove `from google.colab import files` and use the Tkinter image-selection code.
+- **No file-selection window appears:** Ensure that you are running the script in a desktop environment and that Tkinter is available.
+- **The output looks different for different images:** Results depend on lighting, shadows, image quality, surface texture, and processing parameters.
+- **Some keypoints are not on cracks:** ORB detects local image features; it does not independently classify every detected feature as a crack.
+
+## References
+
+1. M. Ann and P. Johnson, *Best Practices Handbook on Asphalt Pavement Maintenance*, Minnesota Technology Transfer (T2) Center / LTAP Program (2000). [PDF](http://www.cee.mtu.edu/~balkire/CE5403/AsphaltPaveMaint.pdf).
+
+2. T. D. Donald Walker, *Pavement Surface Evaluation and Rating (PASER) Manuals*, Wisconsin Transportation Information Center (2002). [PDF](http://www.apa-mi.org/docs/Asphalt-PASERManual.pdf).
+
+3. R. K. Kay, *Pavement Surface Condition - Rating Manual*, Northwest Technology Transfer Center, Washington State Department of Transportation (1992).
+
+4. L. Li, L. Sun, G. Ning, and S. Tan, "Automatic pavement crack recognition based on BP neural network," *PROMET - Traffic & Transportation*, 26(1), 11–22 (2014).
+
+5. National Highway Traffic Safety Administration (NHTSA), *National Motor Vehicle Crash Causation Survey Report to Congress* (2008). [Report](http://www-nrd.nhtsa.dot.gov/Pubs/811059.PDF).
+
+6. J. M. Palomares, J. González, and E. Ros, "Detección de bordes en imágenes con sombras mediante LIP–Canny," AERFAI Symposium on Pattern Recognition and Image Analysis, Granada (2005).
+
+7. J. S. Miller, R. B. Rogers, and G. R. Rada, "Appendix A - Pavement Distress Types and Causes," in *Distress Identification Manual for the Long-Term Pavement Performance Project*, National Cooperative Highway Research Program (1993), pp. 1–31.
 7. JS Miller, RB Rogers, GR Rada, in Distress Identification Manual for the Long-Term Pavement Performance Project. Appendiz A - Pavement Distress Types and Causes (National Cooperative Highway Research Program, At NW Washington, 1993), pp. 1–31.
